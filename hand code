@@ -1,0 +1,96 @@
+#include <SoftwareSerial.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <math.h>
+
+// LCD Setup
+LiquidCrystal_I2C lcd(0x27, 16, 4);
+
+// Sensor Pins
+const int xpin = A0;
+const int ypin = A1;
+const int zpin = A2;
+
+// Switch Pins
+int sw1 = 2, sw2 = 3, sw3 = 4, sw4 = 5;
+int sw5 = 6, sw6 = 7, sw7 = 8, sw8 = 9;
+
+void setup() {
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(1, 0);
+  lcd.print("  GESTURE  ");
+  delay(3000);
+  lcd.setCursor(1, 1);
+  lcd.print(" VOCALIZER ");
+  delay(3000);
+  lcd.clear();
+
+  // Initialize switch pins as OUTPUT
+  pinMode(sw1, OUTPUT); digitalWrite(sw1, HIGH);
+  pinMode(sw2, OUTPUT); digitalWrite(sw2, HIGH);
+  pinMode(sw3, OUTPUT); digitalWrite(sw3, HIGH);
+  pinMode(sw4, OUTPUT); digitalWrite(sw4, HIGH);
+  pinMode(sw5, OUTPUT); digitalWrite(sw5, HIGH);
+  pinMode(sw6, OUTPUT); digitalWrite(sw6, HIGH);
+  pinMode(sw7, OUTPUT); digitalWrite(sw7, HIGH);
+  pinMode(sw8, OUTPUT); digitalWrite(sw8, HIGH);
+}
+
+void loop() {
+  int x = analogRead(xpin); delay(50);
+  int y = analogRead(ypin); delay(50);
+  int z = analogRead(zpin); delay(50);
+
+  Serial.print(x); Serial.print("\t");
+  Serial.print(y); Serial.print("\t");
+  Serial.println(z);
+
+  // Gesture 1: Tea
+  if (x > 360 && x < 385) {
+    gestureAction(sw1, "I WAN'T A", "TEA");
+  }
+  // Gesture 2: Water
+  else if (x > 386 && x < 400) {
+    gestureAction(sw2, "I WAN'T A", "WATER");
+  }
+  // Gesture 3: Book
+  else if (x < 310 && x > 295) {
+    gestureAction(sw3, "I WAN'T A", "BOOK");
+  }
+  // Gesture 4: Newspaper
+  else if (x < 292 && x > 270) {
+    gestureAction(sw4, "I WAN'T A", "NEWS PAPER");
+  }
+  // Gesture 5: Medicine
+  else if (y < 308 && y > 298) {
+    gestureAction(sw5, "I WAN'T A", "MEDICINE");
+  }
+  // Gesture 6: Washroom
+  else if (y < 297 && y > 285) {
+    gestureAction(sw6, "I WAN'T TO GO", "WASHROOM");
+  }
+  // Gesture 7: Breakfast
+  else if (y < 394 && y > 380) {
+    gestureAction(sw7, "I WAN'T A", "BREAKFAST");
+  }
+  // Gesture 8: Dinner
+  else if (y < 410 && y > 395) {
+    gestureAction(sw8, "I WAN'T A", "DINNER");
+  }
+}
+
+// Reusable function for gesture action
+void gestureAction(int pin, String line1, String line2) {
+  digitalWrite(pin, LOW);
+  lcd.clear();
+  lcd.print(line1);
+  lcd.setCursor(1, 1);
+  lcd.print(" " + line2);
+  Serial.println(line1 + " " + line2);
+  delay(1500);
+  lcd.clear();
+  digitalWrite(pin, HIGH);
+}
